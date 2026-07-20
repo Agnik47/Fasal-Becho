@@ -34,6 +34,8 @@ Current Goal:
 
 > Build a complete, demo-ready MVP for the NABARD Hackathon.
 
+Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (dairy vs agri-input retail), `agmarknet` source access confirmation, and Meteostat pin-code coverage.
+
 ---
 
 # Phase 0 — Project Setup
@@ -121,6 +123,14 @@ Current Goal:
 
 # Phase 3 — Financial Records
 
+## Synthetic Data Generator
+
+- ⬜ Faker/Mimesis transaction skeleton (IDs, timestamps, lognormal amounts)
+- ⬜ P2M/P2P split logic (P2M received = income, P2M sent = expense, P2P = informal)
+- ⬜ Sector seasonality bias (crop/festival calendar)
+- ⬜ Calibrate macro trend against NPCI aggregate stats
+- ⬜ Freeze with a fixed seed, generate once, check the dataset into the repo
+
 ## CRUD
 
 - ⬜ Add financial record
@@ -167,9 +177,9 @@ Current Goal:
 
 ## External Adjustments
 
-- ⬜ Seasonality adjustment
-- ⬜ Commodity price adjustment
-- ⬜ Weather adjustment
+- ⬜ Seasonality adjustment (sector crop/festival calendar)
+- ⬜ Commodity price adjustment (UPAg `agmarknet`)
+- ⬜ Weather adjustment (Meteostat)
 
 ---
 
@@ -332,16 +342,22 @@ Current Goal:
 
 # Stretch Goals
 
-Only begin these after the MVP is complete.
+Only begin these after the MVP Core tier is complete — per `Feature List.md`, unlikely to be reached in hackathon time.
 
-- ⬜ Multiple business sectors
-- ⬜ Portfolio analytics
-- ⬜ Heatmap dashboard
-- ⬜ Notification system
-- ⬜ Mobile optimization
-- ⬜ Advanced forecasting models
-- ⬜ Multi-language support
-- ⬜ Account Aggregator integration
+- ⬜ Train/test split holding back some generator parameters (show the model recovers *some* signal it wasn't directly given)
+- ⬜ Real Meteostat coverage check + fallback logic for sparse-station pin codes
+- ⬜ Second fully-built sector model
+
+Cut for the hackathon entirely (not stretch goals — see `Feature List.md`):
+
+- Multiple business sectors as a shipped feature (a config stub for a second sector is Important tier, not this)
+- Portfolio analytics beyond the officer's own queue
+- Heatmap dashboard
+- Notification system
+- Mobile optimization
+- Prophet/ARIMA "rigor baseline" models
+- Multi-language support
+- Live Account Aggregator integration
 
 ---
 

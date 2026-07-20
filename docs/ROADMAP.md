@@ -152,17 +152,17 @@ Generate cash flow forecasts.
 
 Deliverables:
 
-- Financial baseline
-- Seasonality adjustment
-- Market adjustment
-- Weather adjustment
+- Financial baseline (synthetic UPI velocity, from the Faker/Mimesis generator)
+- Seasonality adjustment (sector crop/festival calendar)
+- Market adjustment (UPAg `agmarknet` commodity prices)
+- Weather adjustment (Meteostat)
 - Triple scenario generation
 - Working capital calculation
 - Risk score generation
 
 Outcome:
 
-Every enterprise receives predictions.
+Every enterprise receives predictions. Resolve the open questions in `idea.md`/`CURRENT_WORKFLOW.md` (agmarknet source access, Meteostat pin-code coverage, sector choice) before starting this phase.
 
 ---
 
@@ -317,20 +317,15 @@ All of these must be completed before considering the MVP finished.
 
 # Stretch Goals
 
-Only begin these after the MVP is complete.
+Only begin these after the MVP Core tier is complete — per `Feature List.md`, unlikely to be reached in hackathon time:
 
-Possible enhancements:
-
-- Multiple business sectors
-- Advanced forecasting models
-- Notification system
-- Portfolio analytics
-- Heatmaps
-- Multi-language support
-- Account Aggregator integration
-- Mobile application
+- Train/test split holding back some generator parameters, so the model can show it recovers *some* signal it wasn't directly given
+- Real Meteostat coverage check + fallback logic for sparse-station pin codes
+- Second fully-built sector model (beyond the config-stub version in the Important tier)
 
 Stretch goals should never delay MVP completion.
+
+Everything else that sounds like a stretch goal — multiple business sectors as a *shipped* feature, notifications, portfolio analytics, heatmaps, multi-language support, real Account Aggregator integration, mobile app — is explicitly **cut for the hackathon**, not a stretch goal to reach for. See "Future Roadmap" below and `Feature List.md`'s "Cut" section.
 
 ---
 

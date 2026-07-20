@@ -26,6 +26,9 @@ Never skip steps.
 
 Before generating any code:
 
+- Read `idea.md` (honest product framing — do not overclaim AI forecasting)
+- Read `Feature List.md` (Core/Important/Cut/Stretch priority tiers)
+- Read `Sources Reference.md` (how each external data source is actually used)
 - Read AGENTS.md
 - Read PROJECT_RULES.md
 - Read CURRENT_WORKFLOW.md
@@ -71,7 +74,7 @@ Never skip verification.
 Use before writing code.
 
 ```
-Read AGENTS.md, PROJECT_RULES.md, PRD.md, ARCHITECTURE.md, DATABASE.md, API.md, ROADMAP.md, TASKS.md, and CURRENT_WORKFLOW.md.
+Read idea.md, Feature List.md, Sources Reference.md, AGENTS.md, PROJECT_RULES.md, PRD.md, ARCHITECTURE.md, DATABASE.md, API.md, ROADMAP.md, TASKS.md, and CURRENT_WORKFLOW.md.
 
 Understand the requested feature.
 
@@ -532,6 +535,9 @@ Before writing code:
 
 Read:
 
+- idea.md
+- Feature List.md
+- Sources Reference.md
 - AGENTS.md
 - PROJECT_RULES.md
 - PRD.md

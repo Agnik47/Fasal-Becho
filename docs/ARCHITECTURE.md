@@ -561,7 +561,7 @@ UPAg
 
 Purpose
 
-Commodity prices
+Commodity prices — `agmarknet` source only for MVP. Other UPAg sources (`enam`, `wpi`, `pmfby_ay`, `ncdex`, etc.) are optional/cut; see `Sources Reference.md` before wiring any of them up.
 
 Only Market Service may access it.
 
@@ -571,9 +571,21 @@ Meteostat
 
 Purpose
 
-Weather history
+Weather history, by station/lat-long from the enterprise's pin code.
+
+IMD's official gridded rainfall dataset is cited in the deck as "what a production version would use" — it is not integrated; Meteostat is the engineering choice for speed.
 
 Only Weather Service may access it.
+
+------------------------------------------------
+
+Synthetic Data Generator
+
+Purpose
+
+Produces the transaction/financial baseline (Faker/Mimesis, sector-specific P2M/P2P split and seasonality, fixed seed). This is the foundation the rest of the pipeline calibrates against — not a live external API, but treated as its own service boundary: generate once, persist the fixed dataset, never regenerate randomly on demand.
+
+Only the Financial/Prediction service layer may access it.
 
 ------------------------------------------------
 

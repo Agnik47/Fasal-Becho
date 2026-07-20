@@ -6,7 +6,7 @@
 >
 > Before implementing any feature, read this file completely.
 >
-> If another document conflicts with this file, **AGENTS.md always wins**.
+> If another document conflicts with this file, **AGENTS.md always wins** — except on product framing and feature priority, where `idea.md`, `Feature List.md`, and `Sources Reference.md` are authoritative. This file operationalizes their decisions; it should never contradict them.
 
 ---
 
@@ -16,15 +16,17 @@
 
 **Fasal Becho**
 
-An AI-powered decision-support platform that helps NABARD field officers identify rural micro-enterprises likely to experience cash-flow stress before it becomes a financial crisis.
+A **rule-based, explainable decision-support platform** — not an AI-forecasting product — that helps one NABARD field officer triage hundreds of rural micro-enterprises instead of dozens, flagging which ones are likely to experience cash-flow stress before it becomes a financial crisis.
 
 Fasal Becho is **NOT** a lending platform.
 
 Fasal Becho is **NOT** a credit-scoring platform.
 
-Fasal Becho is a **human-in-the-loop triage system**.
+Fasal Becho is **NOT** an AI model claiming proven predictive accuracy on real-world cash flow — that claim doesn't hold up on synthetic, rule-generated data.
 
-It combines synthetic financial data, commodity prices, weather signals and transaction proxies to generate explainable cash-flow scenarios and prioritize enterprises that require human attention.
+Fasal Becho is a **human-in-the-loop triage system**: transparent, auditable rule logic that turns four signals into a priority + a plain-language reason, with AI used only for the explanation layer on top.
+
+It combines a synthetic financial dataset (Faker/Mimesis, fixed seed), UPAg `agmarknet` commodity prices, and Meteostat weather signals to generate explainable cash-flow scenarios and prioritize enterprises that require human attention. See `idea.md` for the full honest framing and `Sources Reference.md` for how each data source is actually used.
 
 ---
 
@@ -140,9 +142,11 @@ Do NOT build:
 - Heatmaps
 - Portfolio analytics
 - Multiple sectors
-- Real Account Aggregator integration
+- Real Account Aggregator integration (mocked/schema-shape only — see `Sources Reference.md`)
+- Prophet / ARIMA "rigor baseline" models
+- Secondary UPAg sources beyond `agmarknet` (unless core is solid with time to spare)
 
-These are future features.
+Most of these are future features. Loan underwriting, credit approval, and lending workflows are a **permanent non-goal** — Fasal Becho is a triage layer, not a credit-scoring product, and that will not change in future versions either.
 
 ---
 
@@ -276,21 +280,28 @@ Those should remain deterministic and transparent.
 
 # Data Sources
 
-Priority:
+Full guidance per source: `Sources Reference.md`.
+
+Foundation (everything else calibrates against this):
+
+- Synthetic Financial Dataset — Faker/Mimesis, fixed seed, generated once and checked into the repo
+
+Primary (wired into the live pipeline):
 
 1.
 
-Synthetic Financial Dataset
+UPAg `agmarknet` — Step 3, Market Reality (this is the one live-API call the pre-submission checklist requires)
 
 2.
 
-UPAg Agmarknet
+Meteostat — Step 4, Weather Deflator
 
-3.
+Secondary / optional / cut first under time pressure:
 
-Meteostat
-
-Everything else is optional.
+- Other UPAg sources (`enam`, `wpi`, `pmfby_ay`, `ncdex`, etc.)
+- NPCI aggregate stats — calibration only, never a live per-enterprise input
+- Sahamati AA schema — shape reference only; AA integration itself is mocked
+- Kaggle UPI generator notebook — reference implementation pattern only
 
 ---
 
@@ -463,36 +474,25 @@ This is the strongest storytelling flow.
 
 # Out of Scope
 
-If implementation time becomes limited:
+`Feature List.md` is the authoritative priority tiering (Core / Important / Cut / Pitch-only / Stretch) — read it before deciding what to cut. Summary:
 
-Cut in this order:
+If implementation time becomes limited, cut in this order (Important tier, build only if Core is solid):
 
-1.
+1. Second sector (config stub, not a full model)
+2. Enterprise-side self-entry view
+3. Enterprise profile drill-down
+4. Live `agmarknet` API call (fall back to a frozen pull if time runs out — but try hard not to cut this one, it's the pre-submission checklist item)
 
-Second sector
+Never cut (Core tier — the demo doesn't work without these):
 
-2.
-
-Additional APIs
-
-3.
-
-Advanced analytics
-
-4.
-
-Maps
-
-5.
-
-Notifications
-
-Never cut:
-
-- Risk Queue
+- Risk Queue (first screen)
 - Triple Chart
+- Working Capital Dip alert
 - Why Card
 - Prediction Pipeline
+- Officer override
+- Offline entry + sync
+- One sector, fully real
 
 These define the product.
 

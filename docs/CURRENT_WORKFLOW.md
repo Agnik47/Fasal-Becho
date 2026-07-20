@@ -220,14 +220,16 @@ Confirmed
 - IndexedDB
 - PWA
 - Gemini
-- UPAg
+- UPAg (`agmarknet` source)
 - Meteostat
+- Faker/Mimesis (synthetic data generator, fixed seed)
 
 Pending
 
 - Authentication provider
 - Deployment environment variables
-- Demo seed dataset
+- Demo seed dataset (generation is confirmed as Faker/Mimesis + fixed seed; the actual frozen dataset still needs to be produced and checked in)
+- Business sector (dairy vs agri-input retail)
 
 ---
 
@@ -275,7 +277,13 @@ Current risks:
 - Synthetic dataset quality
 - Prediction algorithm tuning
 
-These should not block project setup.
+Open questions from `idea.md` — answer these this week, cheap now, expensive later:
+
+- Is `agmarknet` confirmed inside the UPAg account's `user-allowed-sources`? (Not yet checked.)
+- Does Meteostat have usable station coverage for the actual target pin codes? (Not yet checked.)
+- Which one sector — dairy or agri-input retail? (Not yet decided.)
+
+These should not block project setup, but should be resolved before Phase 4 (Prediction Engine) begins.
 
 ---
 
@@ -283,8 +291,8 @@ These should not block project setup.
 
 The project currently assumes:
 
-- One business sector (Agriculture)
-- Synthetic financial data
+- One business sector — **Dairy or Agri-Input Retail, not yet decided** (see Known Risks below and `idea.md`)
+- Synthetic financial data (Faker/Mimesis, fixed seed, generated once and checked into the repo — not regenerated per demo run)
 - Single deployment
 - One backend
 - One database

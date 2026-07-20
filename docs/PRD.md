@@ -1,17 +1,20 @@
 # Product Requirements Document (PRD)
 
 # Fasal Becho
-### AI-Powered Cash Flow Prediction & Risk Intelligence Platform
+### A Rule-Based Cash-Flow Scenario Simulator with an Explainability Layer
 
-> Version: 1.0
+> Version: 1.1
 > Status: MVP
 > Project: NABARD Hackathon 2026
+> Honest-framing source: `idea.md` — read it before this document.
 
 ---
 
 # 1. Overview
 
-Fasal Becho is an AI-assisted decision support platform designed to help NABARD field officers identify rural micro-enterprises that may experience future cash-flow stress.
+Fasal Becho is a decision-support platform designed to help one NABARD field officer triage hundreds of rural micro-enterprises instead of dozens — identifying which ones may experience future cash-flow stress before it becomes a crisis.
+
+The core prediction is **deterministic and rule-based**, not an AI model claiming proven predictive accuracy on real-world cash flow — that claim does not hold up on synthetic, rule-generated data. AI is used strictly for the **explainability layer** on top: turning the deterministic output into plain-language reasons and recommendations. See Section 11 (AI Responsibilities).
 
 Instead of replacing human judgement or making lending decisions, the platform provides explainable cash-flow scenarios, risk prioritization, and actionable recommendations using multiple data signals.
 
@@ -65,17 +68,27 @@ Fasal Becho is NOT:
 - A credit approval engine
 - A credit scoring product
 - A banking application
+- An AI model claiming proven predictive accuracy on real-world cash flow
 
 Fasal Becho IS:
 
 - A decision-support platform
 - A risk prioritization system
-- A cash-flow scenario simulator
+- A rule-based cash-flow scenario simulator with an explainability layer
 - A human-in-the-loop intelligence layer
 
 Every prediction is advisory.
 
 Human officers always make the final decision.
+
+---
+
+# 4a. Honest Constraints (do not overclaim these in the demo or deck)
+
+- **Synthetic data:** all financial/transaction data is synthetically generated (Faker/Mimesis, fixed seed), disclosed upfront — not real enterprise data.
+- **Business model:** SaaS-to-institutions, grant funding, and embedded-lending fees are all unvalidated hypotheses, not a proven plan. No pricing, payer, or timeline exists yet. Near-term goal is a NABARD pilot conversation, nothing more.
+- **Competition:** do not lead with a feature-gap table against lending/underwriting products (Kaleidofin, Avanti, KarmaLife) — different customer segment, reads as a reverse-engineered comparison. The differentiation that matters: *"We don't originate or price credit — we're the layer that decides which enterprise gets a human's attention first."* The real comparison (e-Shakti's roadmap, internal NABARD/RRB tooling) is unresearched and should be checked before the pitch.
+- **Enterprise under-reporting risk:** an enterprise has an incentive to under-report if it believes a flag affects loan treatment. Mitigation: officer-assisted data entry for the pilot (not pure self-entry), framed as "this helps us support you," not "this decides your credit."
 
 ---
 
@@ -155,6 +168,10 @@ Officer Action
 ---
 
 # 8. MVP Scope
+
+Priority tiers (Core / Important / Cut / Stretch) are defined in `Feature List.md` — that document is authoritative for what gets built first. In short: the **officer risk queue is the first screen and the priority tier that must not be cut**; the enterprise-side module below is "Important," not core-blocking.
+
+One sector will be built fully real end-to-end. Which sector — **dairy or agri-input retail** — is not yet decided (open question in `idea.md`); decide this before implementing sector-specific seasonality/commodity logic.
 
 ## Enterprise Module
 
@@ -303,13 +320,23 @@ Core prediction remains deterministic and transparent.
 
 # 12. External Data Sources
 
-Primary:
+Full detail and per-source usage guidance lives in `Sources Reference.md`. Summary:
 
-- Synthetic Financial Dataset
-- UPAg Agmarknet
-- Meteostat
+Foundation:
 
-Secondary sources are optional and only used if time permits.
+- Synthetic Financial Dataset (Faker/Mimesis, fixed seed, calibrated against NPCI aggregate stats and UPAg `farmers_survey`/`nsso`) — generated once and checked into the repo, not regenerated per demo run.
+
+Primary (wired into the live pipeline):
+
+- UPAg `agmarknet` — mandi commodity prices, Step 3
+- Meteostat — historical weather, Step 4
+
+Secondary / optional (only if time permits, cut first under time pressure):
+
+- Other UPAg sources (`enam`, `wpi`, `pmfby_ay`, `ncdex`, etc.)
+- NPCI product statistics — calibration only, never a live per-enterprise input
+- Sahamati Account Aggregator schema — shape reference only; AA integration itself is mocked, not live, for the hackathon
+- Kaggle "UPI Transactions Generator" — reference implementation pattern only, not a plug-in dataset
 
 ---
 
@@ -354,20 +381,20 @@ The application should:
 
 # 15. Out of Scope (Hackathon)
 
-The following features will NOT be implemented:
+The following features will NOT be implemented (full list with rationale in `Feature List.md`):
 
-- Loan approval
-- Credit underwriting
+- Loan approval / credit underwriting / lending decisioning of any kind — Fasal Becho is explicitly a triage layer, not a credit-scoring product, and this will not become in-scope in a future version either
 - Payment gateway
-- Real Account Aggregator integration
-- Multilingual interface
-- Heat maps
-- Portfolio analytics
-- Multiple business sectors
-- Advanced forecasting models
+- Live Account Aggregator / Sahamati sandbox integration — mocked only, schema-shape reference used instead
+- Multilingual / vernacular interface
+- Prophet + ARIMA "rigor baselines" — one deterministic model plus the honest circularity caveat is enough
+- Secondary UPAg sources (`enam`, `wpi`, `pmfby_ay`, `ncdex`, `pink_sheet`)
+- Monitoring dashboard / sector heat map
+- Portfolio-level analytics beyond the officer's own risk queue
+- Multiple business sectors (one sector, fully real, is the MVP scope)
 - Notification system
 
-These are future roadmap items.
+Most of these are future roadmap items (Section 17); credit underwriting/lending decisioning is a permanent non-goal, not a deferred feature.
 
 ---
 

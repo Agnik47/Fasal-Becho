@@ -1,6 +1,15 @@
 # 🌾 Fasal Becho
 
-> **AI-Powered Cash Flow Prediction & Risk Intelligence Platform for Rural Micro Enterprises**
+> **A Rule-Based Cash-Flow Scenario Simulator & Explainable Risk Triage Layer for Rural Micro Enterprises**
+
+<p align="center">
+
+![Status](https://img.shields.io/badge/status-planning-yellow)
+![Methodology](https://img.shields.io/badge/methodology-spec--driven-8A2BE2)
+![Hackathon](https://img.shields.io/badge/NABARD-Hackathon%202026-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+</p>
 
 <p align="center">
 
@@ -10,11 +19,47 @@
 
 ---
 
+### ▶️ Starting or resuming development
+
+You only ever need to give one instruction:
+
+```
+Start with PROMPTS.md
+```
+
+That's it. [`docs/PROMPTS.md`](docs/PROMPTS.md) — specifically **Prompt 20, "Complete Feature Workflow"** — tells the assistant to read every spec document, check [`docs/CURRENT_WORKFLOW.md`](docs/CURRENT_WORKFLOW.md) and [`docs/Task.md`](docs/Task.md) for the active phase/task/process, plan the next unit of work, implement it, verify it, and update the tracking docs. No extra context needs to be repeated between sessions — see [📐 Spec-Driven Development](#-spec-driven-development) below for why.
+
+---
+
+## Table of Contents
+
+- [🚀 Overview](#-overview)
+- [❗ Problem](#-problem)
+- [💡 Solution](#-solution)
+- [📐 Spec-Driven Development](#-spec-driven-development)
+- [🗺 Development Phases](#-development-phases)
+- [✨ Key Features](#-key-features)
+- [🔄 Prediction Pipeline](#-prediction-pipeline)
+- [🏗 Architecture](#-architecture)
+- [🛠 Tech Stack](#-tech-stack)
+- [🌐 External Data Sources](#-external-data-sources)
+- [📚 Documentation Map](#-documentation-map)
+- [📁 Project Structure](#-project-structure)
+- [🎯 Demo Flow](#-demo-flow)
+- [🚀 Local Setup](#-local-setup)
+- [🛣 Future Roadmap](#-future-roadmap)
+- [👥 Team](#-team)
+- [📄 License](#-license)
+
+---
+
 ## 🚀 Overview
 
-Fasal Becho is an AI-assisted decision support platform built for the **NABARD Hackathon**. It helps NABARD field officers proactively identify rural micro-enterprises that are likely to face cash-flow stress before financial distress becomes severe.
+Fasal Becho is a decision-support platform built for the **NABARD Hackathon**. It helps a NABARD field officer triage hundreds of rural micro-enterprises — prioritizing the handful most likely to face cash-flow stress next, instead of relying on infrequent, ad hoc check-ins.
 
-Instead of replacing human judgement, Fasal Becho provides explainable predictions, prioritized risk queues, and AI-generated recommendations that support faster, data-driven interventions.
+**Honest framing:** this is not an AI model claiming proven predictive accuracy on real-world cash flow — that claim doesn't hold up on synthetic, rule-generated data. It's a **transparent, deterministic scenario simulator** (four signals → a triage priority) **with an AI explainability layer** on top that turns each flag into a plain-language reason. See [`docs/idea.md`](docs/idea.md) for the full framing.
+
+Instead of replacing human judgement, Fasal Becho provides explainable scenarios, prioritized risk queues, and AI-generated plain-language explanations that support faster, more informed interventions. Every flag is advisory — the officer always makes the final call.
 
 ---
 
@@ -36,20 +81,111 @@ Challenges include:
 
 ## 💡 Solution
 
-Fasal Becho combines:
+Fasal Becho runs a deterministic, auditable 4-step pipeline over:
 
-- 📊 Financial records
-- 🌦 Weather signals
-- 🌾 Commodity prices
-- 🤖 Explainable AI
+- 📊 Financial records (synthetic UPI velocity baseline)
+- 🌾 Commodity prices (UPAg `agmarknet`)
+- 🌦 Weather signals (Meteostat)
+- 🗓 Sector seasonality (crop/festival calendar)
 
-to generate:
+then layers **AI only for explanation** (never for the calculation itself) to generate:
 
-- Triple cash-flow forecasts
-- Working capital alerts
-- Risk prioritization
-- Why Cards
+- Triple cash-flow scenarios (Optimistic / Expected / Pessimistic)
+- Working Capital Dip alerts
+- Risk prioritization (officer risk queue)
+- Why Cards (plain-language attribution)
 - AI recommendations
+
+---
+
+## 📐 Spec-Driven Development
+
+Nothing gets built without a spec behind it. Every implementation decision traces back through a fixed chain of documents — read top to bottom once, then let `PROMPTS.md` drive every session after that.
+
+```mermaid
+flowchart TD
+    A["idea.md<br/>WHY — honest framing, open questions"] --> D["PRD.md<br/>Product spec"]
+    B["Feature List.md<br/>WHAT — Core / Important / Cut / Stretch"] --> D
+    C["Sources Reference.md<br/>INPUTS — how each data source is used"] --> D
+    D --> E["ARCHITECTURE.md<br/>System spec"]
+    D --> F["DATABASE.md<br/>Data spec"]
+    D --> G["API.md<br/>Contract spec"]
+    E --> H["ROADMAP.md<br/>Phase sequencing"]
+    F --> H
+    G --> H
+    H --> I["Task.md<br/>Phase → Task → Process checklist"]
+    I --> J["CURRENT_WORKFLOW.md<br/>Live state — what's active right now"]
+    J --> K["PROMPTS.md<br/>Execution driver"]
+    K --> L["Implement → Verify → Update Docs → Commit"]
+    L -.-> J
+```
+
+The methodology, in three rules:
+
+1. **Every phase is broken into tasks, and every task into processes.** Nothing is implemented as one undifferentiated blob — see [🗺 Development Phases](#-development-phases).
+2. **The spec docs outrank the code.** If an implementation and a spec disagree, the spec wins (with `idea.md` / `Feature List.md` / `Sources Reference.md` outranking even `AGENTS.md` on product framing and priority — see the note at the top of `docs/Agent.md`).
+3. **One instruction resumes everything.** `docs/CURRENT_WORKFLOW.md` always reflects the live state, so `PROMPTS.md` can pick up exactly where the last session left off without you re-explaining context.
+
+---
+
+## 🗺 Development Phases
+
+Tracked task-by-task in [`docs/Task.md`](docs/Task.md); the dependency narrative for *why* this order lives in [`docs/ROADMAP.md`](docs/ROADMAP.md). No phase begins before its dependencies are complete, and no phase is "done" until every process inside every one of its tasks is checked off.
+
+```
+Planning          ██████████ 100%
+Development       ░░░░░░░░░░   0%
+Testing           ░░░░░░░░░░   0%
+Deployment        ░░░░░░░░░░   0%
+```
+*(live status: [`docs/CURRENT_WORKFLOW.md`](docs/CURRENT_WORKFLOW.md))*
+
+| # | Phase | Tasks | Processes | Status |
+|---|-------|:-:|:-:|:-:|
+| 0 | Project Setup | 3 | 19 | ⬜ |
+| 1 | Authentication | 2 | 8 | ⬜ |
+| 2 | Enterprise Management | 3 | 10 | ⬜ |
+| 3 | Financial Records | 4 | 16 | ⬜ |
+| 4 | Prediction Engine | 4 | 12 | ⬜ |
+| 5 | Explainability | 2 | 5 | ⬜ |
+| 6 | Officer Dashboard | 4 | 15 | ⬜ |
+| 7 | Offline Support | 2 | 6 | ⬜ |
+| 8 | UI & UX | 3 | 10 | ⬜ |
+| 9 | Testing | 3 | 12 | ⬜ |
+| 10 | Deployment | 2 | 9 | ⬜ |
+| **Total** | **11 phases** | **32** | **122** | |
+
+<details>
+<summary><strong>How the nesting works — Phase 4 (Prediction Engine) expanded as an example</strong></summary>
+
+```mermaid
+flowchart LR
+    P["Phase 4<br/>Prediction Engine"] --> T1["Task: Baseline"]
+    P --> T2["Task: Scenario Engine"]
+    P --> T3["Task: External Adjustments"]
+    P --> T4["Task: Risk Analysis"]
+```
+
+- **Task: Baseline**
+  - Process: Revenue calculation
+  - Process: Expense calculation
+  - Process: Working capital calculation
+- **Task: Scenario Engine**
+  - Process: Optimistic scenario
+  - Process: Expected scenario
+  - Process: Pessimistic scenario
+- **Task: External Adjustments**
+  - Process: Seasonality adjustment (sector crop/festival calendar)
+  - Process: Commodity price adjustment (UPAg `agmarknet`)
+  - Process: Weather adjustment (Meteostat)
+- **Task: Risk Analysis**
+  - Process: Risk score
+  - Process: Risk level
+  - Process: Working capital dip detection
+
+A phase is only complete when every process in every task above is checked off in `docs/Task.md` and the phase's definition-of-done in `docs/ROADMAP.md` passes.
+
+</details>
 
 ---
 
@@ -67,52 +203,37 @@ to generate:
 
 ## 🔄 Prediction Pipeline
 
-```text
-Financial Records
-        │
-        ▼
-Seasonality
-        │
-        ▼
-Commodity Prices
-        │
-        ▼
-Weather Adjustment
-        │
-        ▼
-Scenario Generation
-        │
-        ▼
-Risk Score
-        │
-        ▼
-Why Card
-        │
-        ▼
-AI Recommendation
+```mermaid
+flowchart TD
+    A[Financial Records] --> B[Seasonality]
+    B --> C["Commodity Prices<br/>UPAg agmarknet"]
+    C --> D["Weather Adjustment<br/>Meteostat"]
+    D --> E["Scenario Generation<br/>Optimistic / Expected / Pessimistic"]
+    E --> F[Risk Score]
+    F --> G[Why Card]
+    G --> H[AI Recommendation]
 ```
 
 ---
 
 ## 🏗 Architecture
 
-```text
-Enterprise Portal
-          │
-Officer Dashboard
-          │
-          ▼
- Next.js Application
-          │
- Business Layer
-          │
- Prediction Engine
-          │
- ├── Weather
- ├── Commodity Prices
- ├── AI Recommendations
- └── PostgreSQL
+```mermaid
+flowchart TD
+    EP[Enterprise Portal] --> APP
+    OD[Officer Dashboard] --> APP
+    APP["Next.js Application"] --> BL[Business Layer]
+    BL --> PE[Prediction Engine]
+    PE --> WX["Weather Service<br/>Meteostat"]
+    PE --> MK["Market Service<br/>UPAg agmarknet"]
+    PE --> AI["AI Service<br/>Gemini — explanation only"]
+    WX --> DB[(PostgreSQL)]
+    MK --> DB
+    AI --> DB
+    PE --> DB
 ```
+
+Full layer/module breakdown: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
@@ -125,7 +246,7 @@ Officer Dashboard
 | Backend | Next.js Route Handlers |
 | ORM | Prisma |
 | Database | PostgreSQL |
-| AI | Gemini |
+| AI | Gemini (explanation layer only) |
 | Charts | Recharts |
 | Offline | PWA + IndexedDB |
 | Deployment | Vercel |
@@ -134,10 +255,38 @@ Officer Dashboard
 
 ## 🌐 External Data Sources
 
-- Agmarknet (UPAg)
-- Meteostat
-- Synthetic Financial Dataset
-- Gemini
+Primary (wired into the live pipeline):
+
+- **UPAg `agmarknet`** — mandi commodity prices, Step 3 (Market Reality)
+- **Meteostat** — historical weather by station/lat-long, Step 4 (Weather Deflator)
+- **Faker/Mimesis** — synthetic transaction generator (fixed seed, sector-specific), the foundation everything else calibrates against
+- **Gemini** — explanation and recommendation text only, never the calculation
+
+Secondary / calibration / cut for the hackathon — see [`docs/Sources Reference.md`](<docs/Sources Reference.md>) for the full breakdown:
+
+- NPCI aggregate stats (macro calibration for the synthetic generator, not a live input)
+- Sahamati Account Aggregator schema (shape reference for mock records — AA integration itself is mocked, not live)
+- Secondary UPAg sources (`enam`, `wpi`, `pmfby_ay`, `ncdex`, etc.) — optional depth, cut first if time-constrained
+
+---
+
+## 📚 Documentation Map
+
+| Document | Purpose |
+|---|---|
+| [`docs/idea.md`](docs/idea.md) | **Start here.** The honest framing — why this exists, what it is/isn't, open questions |
+| [`docs/Feature List.md`](<docs/Feature List.md>) | Priority tiers: Core / Important / Cut / Pitch-only / Stretch |
+| [`docs/Sources Reference.md`](<docs/Sources Reference.md>) | How every external data source is actually used, and in what priority order |
+| [`docs/PRD.md`](docs/PRD.md) | Product requirements — users, workflows, MVP scope |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System architecture — layers, modules, data flow |
+| [`docs/DATABASE.md`](docs/DATABASE.md) | Logical data model — entities, relationships, validation |
+| [`docs/API.md`](docs/API.md) | API contract — endpoints, response shape, standards |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Phase sequencing and dependency order (the "why this order") |
+| [`docs/Task.md`](docs/Task.md) | Phase → Task → Process checklist (the live build tracker) |
+| [`docs/CURRENT_WORKFLOW.md`](docs/CURRENT_WORKFLOW.md) | Current state — what's active right now, updated every session |
+| [`docs/PROMPTS.md`](docs/PROMPTS.md) | **The execution driver** — the prompt library that runs everything above |
+| [`docs/Agent.md`](docs/Agent.md) | AGENTS.md — engineering source of truth for AI coding assistants |
+| [`docs/PROJECT_RULES.md`](docs/PROJECT_RULES.md) | Engineering rules and definition of done |
 
 ---
 
@@ -157,14 +306,15 @@ docs/
 
 ## 🎯 Demo Flow
 
-1. Create an enterprise
-2. Add monthly financial records
-3. Generate prediction
-4. View risk score
-5. Read Why Card
-6. View AI recommendations
-7. Open Officer Dashboard
-8. Record officer intervention
+The demo opens on the **Officer Dashboard**, not a landing page — the Risk Queue is the strongest first impression.
+
+1. Open Officer Dashboard → Risk Queue (sorted priority list)
+2. Open a high-risk enterprise
+3. View the triple-scenario cash-flow chart
+4. See the Working Capital Dip alert
+5. Read the Why Card (plain-language attribution per flag)
+6. Read the AI recommendation
+7. Record an officer action (or override the alert)
 
 ---
 
@@ -184,7 +334,9 @@ npm run dev
 
 ---
 
-## 🛣 Roadmap
+## 🛣 Future Roadmap
+
+Post-hackathon only — none of these are MVP scope, see [`docs/Feature List.md`](<docs/Feature List.md>) for what's explicitly cut vs. genuinely stretch:
 
 - Multi-sector support
 - Portfolio analytics

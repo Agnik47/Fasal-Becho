@@ -448,16 +448,16 @@ One Prediction
 
 MVP
 
-- Agriculture
+- One sector, fully real — **Dairy** or **Agri-Input Retail** (not yet decided; open question in `idea.md`, resolve before implementing sector-specific seasonality/commodity logic)
 
 Future
 
-- Dairy
 - Fisheries
 - Poultry
 - Food Processing
 - Retail
 - Handicrafts
+- Whichever of Dairy / Agri-Input Retail wasn't picked for MVP
 
 ---
 
