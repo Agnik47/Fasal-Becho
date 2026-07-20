@@ -245,13 +245,15 @@ Scenario Generation
 
 ↓
 
-Risk Score
+Risk Score (deterministic arithmetic + the offline-exported risk-model weights — see ARCHITECTURE.md Section 3a)
 
 ↓
 
-Explainability
+Explainability (built from the risk model's SHAP-style attributions)
 
-Do not use AI to calculate risk.
+Do not use Gemini or any generative AI to calculate risk.
+
+The risk model itself is never trained or invoked live inside this module — it is a Python artifact trained offline and checked into the repo; this module only loads its exported weights and applies them as plain arithmetic.
 
 Keep calculations deterministic.
 ```

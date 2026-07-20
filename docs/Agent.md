@@ -262,19 +262,18 @@ Always explain the reasoning.
 
 # AI Usage
 
-AI is used ONLY for:
+Two things are both called "AI" in this project — do not conflate them:
 
-- Recommendation generation
-- Plain-language summaries
-- Explainability
+- **Gemini** (generative, runtime) — used ONLY for recommendation generation, plain-language summaries, and turning risk-model attributions into Why Card sentences.
+- **The risk model** (scikit-learn + SHAP, offline) — the project's actual AI/ML development. Trained once in Python, exported as static weights, applied deterministically by the running app. See `ARCHITECTURE.md` Section 3a.
 
-AI is NOT responsible for:
+Gemini is NOT responsible for, and must never be called to perform:
 
 - Core prediction
 - Risk scoring
 - Scenario generation
 
-Those should remain deterministic and transparent.
+The risk model contributes to the risk score, but only via its offline-exported weights applied as plain arithmetic — never a live inference call inside a request. Core prediction, including the risk model's contribution, remains deterministic, reproducible, and transparent.
 
 ---
 
@@ -285,6 +284,7 @@ Full guidance per source: `Sources Reference.md`.
 Foundation (everything else calibrates against this):
 
 - Synthetic Financial Dataset — Faker/Mimesis, fixed seed, generated once and checked into the repo
+- Risk Model + SHAP attributions — trained once offline in Python (scikit-learn + shap) on the dataset above, exported as static weights; this is the project's actual AI/ML development, and it is never a live service (see `ARCHITECTURE.md` Section 3a)
 
 Primary (wired into the live pipeline):
 
@@ -323,11 +323,20 @@ Backend
 - Prisma
 - PostgreSQL
 
-AI
+Data Science (offline only — see ARCHITECTURE.md Section 3a; never part of the deployed application, never called at request time)
+
+- Python
+- Faker / Mimesis
+- NumPy / Pandas
+- scikit-learn (the risk model)
+- SHAP (feature attribution)
+- Meteostat Python client (exploration/validation only — the running app calls Meteostat's HTTP API directly)
+
+Generative AI (runtime, language only)
 
 - Gemini
 
-Offline
+Offline (client, PWA)
 
 - PWA
 - IndexedDB
@@ -335,6 +344,8 @@ Offline
 Deployment
 
 - Vercel
+
+Two different "offline"s appear above — don't confuse them: the **Data Science** row is offline in the sense of "runs before deployment, not at request time." The **Offline (client, PWA)** row is offline in the sense of "the mobile/tablet client works without a network connection." They are unrelated.
 
 ---
 

@@ -281,7 +281,7 @@ Open questions from `idea.md` — answer these this week, cheap now, expensive l
 
 - Is `agmarknet` confirmed inside the UPAg account's `user-allowed-sources`? (Not yet checked.)
 - Does Meteostat have usable station coverage for the actual target pin codes? (Not yet checked.)
-- Which one sector — dairy or agri-input retail? (Not yet decided.)
+- Which one sector — dairy or agri-input retail? (Not yet decided. Note: choosing dairy also pulls in UPAg `mncfc`/`dcs`/`dafw_state`/`dafw_district` fodder-crop yield data per `Sources Reference.md`; agri-input retail doesn't need those sources at all.)
 
 These should not block project setup, but should be resolved before Phase 4 (Prediction Engine) begins.
 

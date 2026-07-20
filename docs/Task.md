@@ -103,6 +103,7 @@ Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (da
 - ⬜ Edit enterprise
 - ⬜ Soft delete enterprise
 - ⬜ Enterprise listing
+- ⬜ Capture Pin Code (needed for Step 4 Meteostat weather lookup — see `Sources Reference.md` Section 2)
 
 ---
 
@@ -127,9 +128,12 @@ Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (da
 
 - ⬜ Faker/Mimesis transaction skeleton (IDs, timestamps, lognormal amounts)
 - ⬜ P2M/P2P split logic (P2M received = income, P2M sent = expense, P2P = informal)
+- ⬜ Weekend/temporal amplification pattern (adapted from the Kaggle UPI generator reference — `Sources Reference.md` Section 5)
 - ⬜ Sector seasonality bias (crop/festival calendar)
 - ⬜ Calibrate macro trend against NPCI aggregate stats
+- ⬜ Calibrate household income/savings distributions against UPAg `farmers_survey`/`nsso`
 - ⬜ Freeze with a fixed seed, generate once, check the dataset into the repo
+- ⬜ Export dataset feature statistics (means/variance) needed for offline model training (Phase 4)
 
 ## CRUD
 
@@ -146,6 +150,7 @@ Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (da
 - ⬜ Expenses
 - ⬜ Savings
 - ⬜ Outstanding loan
+- ⬜ Shape mock financial-record JSON against the Sahamati `deposit.xsd` structure (balances, transaction entries, account summary) — for AA-integration credibility, not live validation (`Sources Reference.md` Section 6)
 
 ---
 
@@ -179,15 +184,26 @@ Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (da
 
 - ⬜ Seasonality adjustment (sector crop/festival calendar)
 - ⬜ Commodity price adjustment (UPAg `agmarknet`)
-- ⬜ Weather adjustment (Meteostat)
+- ⬜ Weather adjustment (Meteostat, via Enterprise Pin Code → lat/long lookup)
+
+---
+
+## Offline Risk Model & Explainability (Python — not part of the running app)
+
+- ⬜ Train lightweight model (scikit-learn: linear/logistic regression or shallow gradient-boosted tree) on the frozen synthetic dataset
+- ⬜ Hold out some generator parameters for train/test validation (Stretch rigor, see `Feature List.md`)
+- ⬜ Compute SHAP feature attributions
+- ⬜ Export model weights + feature baselines as static JSON, check into repo
+- ⬜ Import exported weights into the TypeScript Prediction Engine and apply deterministically
 
 ---
 
 ## Risk Analysis
 
-- ⬜ Risk score
+- ⬜ Risk score (deterministic arithmetic + exported model weights)
 - ⬜ Risk level
 - ⬜ Working capital dip detection
+- ⬜ PMFBY claims cross-check for weather-deflator sanity (optional validation, Important tier — UPAg `pmfby_ay`, `Sources Reference.md` Section 1)
 
 ---
 
@@ -196,6 +212,7 @@ Before Phase 4 starts, resolve the open questions in `idea.md`: which sector (da
 ## Why Card
 
 - ⬜ Build explanation generator
+- ⬜ Consume SHAP-style attribution values from the Prediction Engine
 - ⬜ Display contributing factors
 
 ---

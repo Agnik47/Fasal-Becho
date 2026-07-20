@@ -81,6 +81,14 @@ pip install mimesis
 
 **One team decision to make now:** generate all synthetic data **once**, save it as a fixed dataset (CSV/JSON) checked into your repo, rather than regenerating randomly on every demo run. A judge re-running your demo and getting different numbers than what's in your slides is an easy credibility hit — freeze your seed.
 
+**Extending the same Python step to the risk model (Core, not optional):** the same offline Python process that generates and freezes the dataset also trains the project's actual AI/ML component — a small, transparent model (e.g. `scikit-learn` `LinearRegression`/`LogisticRegression`, or a shallow gradient-boosted tree) that predicts risk from the pipeline's features, explained with `shap` feature attributions. This is what `idea.md`'s "Keep: SHAP/Why-card explainability" line refers to.
+
+```bash
+pip install scikit-learn shap pandas numpy
+```
+
+Export the trained model as a small static JSON artifact (coefficients/weights + feature baselines, or a serialized shallow tree) and check it into the repo alongside the frozen dataset. **This entire step runs offline, once, before the demo — never as a live service the running app calls.** The Next.js/TypeScript app loads the exported weights and applies them deterministically at request time (arithmetic only), and computes the matching SHAP-style attribution the same way — so the runtime stays a single application with no second backend, per `ARCHITECTURE.md`.
+
 ---
 
 ## 4. NPCI Product Statistics — calibration, not live pipeline input()
@@ -132,5 +140,6 @@ Open `schemas/deposit/deposit.xsd` — don't parse or validate against it in cod
 1. **UPAg `agmarknet`** — required for your live-API checklist item; wires Step 3.
 2. **Meteostat** — fast, wires Step 4; skip IMD raw grids entirely for the hackathon.
 3. **Faker/Mimesis generator with your own P2M/seasonality logic** — this is the foundation everything else calibrates against; get it frozen (fixed seed) early.
-4. **NPCI stats + Sahamati schema** — calibration/shape references, do these once your core generator works, not before.
-5. **UPAg secondary sources (`pmfby_ay`, `wpi`, `enam`, etc.), Kaggle notebook, journal citation** — polish and deck credibility, cut first if time-constrained.
+4. **Offline risk model + SHAP export** (Core, not optional) — train once the dataset is frozen, export weights as a static artifact for the TypeScript runtime to apply.
+5. **NPCI stats + Sahamati schema** — calibration/shape references, do these once your core generator works, not before.
+6. **UPAg secondary sources (`pmfby_ay`, `wpi`, `enam`, etc.), Kaggle notebook, journal citation** — polish and deck credibility, cut first if time-constrained.

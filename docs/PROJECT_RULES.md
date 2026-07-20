@@ -324,15 +324,17 @@ Never build UI around undefined data.
 
 # AI Rules
 
-Gemini is used only for:
+Gemini (generative AI) is used only for:
 
 - recommendations
 - summaries
 - explainability
 
-Do not use AI for deterministic calculations.
+Do not use Gemini, or any live model call, for deterministic calculations.
 
-Prediction logic must remain transparent.
+The risk model is a separate thing and follows different rules: it is a small model trained **offline in Python**, exported as static weights, and checked into the repo. Application code only ever loads those weights and applies them as plain arithmetic — never trains a model, never calls a live Python/ML process. See `ARCHITECTURE.md` Section 3a.
+
+Prediction logic must remain transparent and deterministic at request time, whether the arithmetic came from a hand-written rule or an exported model weight.
 
 ---
 

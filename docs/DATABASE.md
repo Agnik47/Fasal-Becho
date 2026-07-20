@@ -149,6 +149,7 @@ Every prediction is generated for one enterprise.
 - District
 - State
 - Village
+- Pin Code (required — the Weather Service, `ARCHITECTURE.md` Section 8, resolves this to lat/long for the Meteostat pull in Prediction Pipeline Step 4; see `Sources Reference.md` Section 2)
 - Registration Number (optional)
 - Created By
 - Created At
@@ -271,7 +272,7 @@ Old predictions should remain available for comparison.
 - Working Capital Forecast
 - Risk Score
 - Risk Level
-- Model Version
+- Model Version (version/hash of the offline-trained risk model artifact applied — see `ARCHITECTURE.md` Section 3a; not a live ML service version)
 
 ---
 

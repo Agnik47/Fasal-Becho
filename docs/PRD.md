@@ -278,8 +278,8 @@ Input:
 
 - Cash Flow Forecast
 - Working Capital Prediction
-- Risk Level
-- Why Explanation
+- Risk Level (deterministic arithmetic + the offline-trained risk model's exported weights — see Section 11)
+- Why Explanation (built from the risk model's SHAP-style feature attributions)
 - AI Recommendation
 
 ---
@@ -302,19 +302,24 @@ Every alert requires a human-readable explanation.
 
 # 11. AI Responsibilities
 
-Artificial Intelligence is responsible for:
+Two different things are both loosely called "AI" here — they must not be confused:
+
+1. **Generative AI (Gemini)** — language only.
+2. **The risk model** — a small, transparent model (linear/logistic regression or a shallow gradient-boosted tree) trained **offline, once, in Python** on the synthetic dataset, exported as static weights, and applied by the running application with plain arithmetic. This is the project's actual AI/ML development (see `ARCHITECTURE.md` Section 3a and `Feature List.md`).
+
+Gemini (Generative AI) is responsible for:
 
 - Plain-language summaries
 - Recommendations
-- Explainability
+- Turning the risk model's SHAP-style attributions into sentences for the Why Card
 
-Artificial Intelligence is NOT responsible for:
+Gemini is NOT responsible for, and NEVER calls a live service for:
 
 - Risk calculation
 - Financial simulation
 - Scenario generation
 
-Core prediction remains deterministic and transparent.
+The risk model contributes to the Risk Score, but only via its offline-exported weights applied deterministically at request time — there is no live inference call, and it never runs inside a request. Core prediction, including the risk model's contribution, remains deterministic, reproducible, and transparent.
 
 ---
 
@@ -322,9 +327,10 @@ Core prediction remains deterministic and transparent.
 
 Full detail and per-source usage guidance lives in `Sources Reference.md`. Summary:
 
-Foundation:
+Foundation (all produced by the offline Python pipeline — `ARCHITECTURE.md` Section 3a — never a live service):
 
 - Synthetic Financial Dataset (Faker/Mimesis, fixed seed, calibrated against NPCI aggregate stats and UPAg `farmers_survey`/`nsso`) — generated once and checked into the repo, not regenerated per demo run.
+- Risk model weights + SHAP attributions (scikit-learn + shap, trained on the dataset above) — exported once and checked into the repo; this is the project's AI/ML development.
 
 Primary (wired into the live pipeline):
 

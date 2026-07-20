@@ -49,6 +49,28 @@ Never split the application into multiple backends.
 
 Everything runs inside one Next.js application.
 
+**Exception, stated explicitly:** the offline Python data-science pipeline (Section 3a) is tooling, not a backend. It never runs as part of the deployed application, is never called over HTTP by it, and has no request/response lifecycle. It runs once, ahead of time, and produces static artifacts (the frozen synthetic dataset and the exported risk-model weights) that get checked into the repo and read by the Next.js application like any other static data file. This does not violate "one backend" — there is still exactly one thing that serves requests.
+
+---
+
+# 3a. Offline Data-Science Pipeline (Python, not part of the running application)
+
+This is where the project's actual AI/ML development happens — and it is deliberately kept out of the request path.
+
+Responsibilities (run manually / as one-off scripts, not deployed):
+
+- Generate the synthetic financial/transaction dataset (Faker/Mimesis, `numpy.random.lognormal` for amounts, fixed seed)
+- Calibrate the generator's macro assumptions against NPCI aggregate stats and UPAg `farmers_survey`/`nsso`
+- Train a small, transparent risk model (`scikit-learn` — linear/logistic regression or a shallow gradient-boosted tree) on the frozen dataset
+- Compute `shap` feature attributions for that model
+- Export both the frozen dataset and the trained model's weights/baselines as static JSON, checked into the repo
+
+Tooling: Python, Faker, Mimesis, NumPy, Pandas, scikit-learn, SHAP, the Meteostat Python client (for exploring/validating weather coverage — the running app calls Meteostat's HTTP API directly, it does not shell out to Python).
+
+What the running Next.js application does with the output: loads the exported dataset and model weights as static data, and applies the model **deterministically** — plain arithmetic over fixed weights, not a live inference call. The Prediction Module (Section 4) and Prediction Pipeline (Section 5) below own this application logic. Gemini is a separate, unrelated integration used only for turning the resulting numbers into language (Section 8) — it never touches the weights or the arithmetic.
+
+Full guidance and exact library versions/commands: `Sources Reference.md`.
+
 ---
 
 # 2. High Level Architecture
@@ -178,7 +200,7 @@ Meteostat
 
 Gemini
 
-Synthetic Dataset
+Synthetic Dataset + Risk Model artifacts (static, produced by the offline Python pipeline in Section 3a — read, not called)
 
 Every external integration must have its own service.
 
@@ -275,7 +297,9 @@ Cash Flow Forecast
 
 Risk Level
 
-This module owns all prediction logic.
+Applying the offline-trained risk model's exported weights (Section 3a) and computing the matching SHAP-style attribution values
+
+This module owns all prediction logic. It reads the exported model artifact as static data — it does not train models, and it never calls a live Python process.
 
 ────────────────────────
 
@@ -453,7 +477,15 @@ Working Capital Dip
 
 ↓
 
+Apply exported risk-model weights (Section 3a) — deterministic arithmetic, not a live inference call
+
+↓
+
 Risk Score
+
+↓
+
+Compute matching SHAP-style feature attributions
 
 ↓
 
@@ -463,11 +495,11 @@ Explainability
 
 ↓
 
-Why Card
+Why Card (built from the Step 6 attributions)
 
 ↓
 
-Recommendations
+Recommendations (Gemini — language only, never recalculates the score)
 
 Never change this order.
 
@@ -571,7 +603,7 @@ Meteostat
 
 Purpose
 
-Weather history, by station/lat-long from the enterprise's pin code.
+Weather history, by station/lat-long resolved from the Enterprise's Pin Code field (`DATABASE.md`).
 
 IMD's official gridded rainfall dataset is cited in the deck as "what a production version would use" — it is not integrated; Meteostat is the engineering choice for speed.
 
@@ -579,13 +611,13 @@ Only Weather Service may access it.
 
 ------------------------------------------------
 
-Synthetic Data Generator
+Synthetic Data Generator + Risk Model
 
 Purpose
 
-Produces the transaction/financial baseline (Faker/Mimesis, sector-specific P2M/P2P split and seasonality, fixed seed). This is the foundation the rest of the pipeline calibrates against — not a live external API, but treated as its own service boundary: generate once, persist the fixed dataset, never regenerate randomly on demand.
+Produces the transaction/financial baseline and the risk-model weights the Prediction Module applies. This is the Offline Data-Science Pipeline defined in **Section 3a** — not a live external API and not a service the running application calls; the application reads its exported artifacts as static data.
 
-Only the Financial/Prediction service layer may access it.
+Only the Financial/Prediction service layer may read the exported artifacts.
 
 ------------------------------------------------
 

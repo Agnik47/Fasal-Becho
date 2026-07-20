@@ -156,6 +156,7 @@ Deliverables:
 - Seasonality adjustment (sector crop/festival calendar)
 - Market adjustment (UPAg `agmarknet` commodity prices)
 - Weather adjustment (Meteostat)
+- Offline risk model + SHAP attributions, trained once in Python and exported as static weights (`ARCHITECTURE.md` Section 3a) — this is the project's AI/ML development; the running app only ever applies the exported weights deterministically, it never trains or calls a live model
 - Triple scenario generation
 - Working capital calculation
 - Risk score generation
@@ -174,7 +175,7 @@ Explain predictions.
 
 Deliverables:
 
-- Why Card
+- Why Card (built from the Phase 4 risk model's SHAP attributions, turned into sentences by Gemini)
 - Plain-language summaries
 - AI recommendations
 - Business insights

@@ -10,7 +10,8 @@ Organized by priority, matching the cut list already agreed in `idea.md`. Build 
 - **4-step scenario pipeline** — baseline (UPI velocity) → seasonality overlay → market-price adjustment (Agmarknet) → weather deflator (Meteostat)(Possible)
 - **Triple-line chart** — Optimistic / Expected / Pessimistic scenarios(Possible)
 - **Working Capital Dip alert** — zero-crossing detection with a plain-language deficit statement
-- **"Why" breakdown card** — one-line attribution per flag (e.g. "12% downward trend in Mandi prices for Paddy")
+- **Lightweight risk model + SHAP attribution** — a small, transparent model (e.g. linear/logistic regression) trained offline in Python on the synthetic dataset, explained with SHAP feature attributions; this is the actual "AI/ML development" of the project — restores `idea.md`'s original "Keep: SHAP/Why-card explainability" line, which the Core tier had previously simplified away. Trained and exported **offline only** — the running app never calls a live Python/ML service, it applies the exported weights deterministically (see `ARCHITECTURE.md`).
+- **"Why" breakdown card** — one-line attribution per flag, generated from the SHAP values above (e.g. "12% downward trend in Mandi prices for Paddy")
 - **Field-officer risk queue** — sorted priority list, first screen shown in the demo (not the chart)
 - **One sector, fully real** — dairy or agri-input retail (decide this week), end-to-end
 - **Offline entry + sync** — enterprise can enter data offline; syncs on reconnect (not a hardened sync engine, just this)
@@ -22,6 +23,7 @@ Organized by priority, matching the cut list already agreed in `idea.md`. Build 
 - **Live UPAg `agmarknet` API call** — at least one real pull, to prove the demo isn't 100% fabricated
 - **Enterprise profile drill-down** — officer clicks into one flagged enterprise to see the full chart + Why card
 - **Second sector as a config stub** — enough to show the architecture generalizes, not a fully working second model
+- **PMFBY claims cross-check** — sanity-check the weather-deflator logic against real historical PMFBY claim spikes (UPAg `pmfby_ay` source); validation only, never a live pipeline input
 
 ## Cut for the hackathon (explicitly out of scope, say so if asked)
 
@@ -40,9 +42,11 @@ Organized by priority, matching the cut list already agreed in `idea.md`. Build 
 - Business model as funding-path hypothesis, not a proven plan
 - "We're not competing with Kaleidofin/Avanti/KarmaLife — we're the layer that decides who gets a human's attention first"
 - Officer-assisted entry as the answer to the enterprise under-reporting risk
+- NPCI credibility line: *"Synthetic UPI proxy calibrated against published NPCI aggregate statistics"* — cite the specific month/figure used
+- Academic citation for independent, non-vendor backing: *"Credit Distribution and Refinance Activities of NABARD: A Detailed Review,"* Asian Journal of Economics, Business and Accounting — one line on the "why this matters" slide, not a data source
 
 ## Stretch (only if everything above is done early — unlikely in hackathon time)
 
-- Train/test split holding back some generator parameters, so the model can show it recovers *some* signal it wasn't directly given
+- Train/test split rigor on top of the Core risk model — hold back some generator parameters so there's a defensible claim it recovers *some* signal it wasn't directly given, beyond just having a trained model at all
 - Real Meteostat coverage check + fallback logic for sparse-station pin codes
 - Second fully-built sector model

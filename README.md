@@ -144,16 +144,16 @@ Deployment        ░░░░░░░░░░   0%
 |---|-------|:-:|:-:|:-:|
 | 0 | Project Setup | 3 | 19 | ⬜ |
 | 1 | Authentication | 2 | 8 | ⬜ |
-| 2 | Enterprise Management | 3 | 10 | ⬜ |
-| 3 | Financial Records | 4 | 16 | ⬜ |
-| 4 | Prediction Engine | 4 | 12 | ⬜ |
-| 5 | Explainability | 2 | 5 | ⬜ |
+| 2 | Enterprise Management | 3 | 11 | ⬜ |
+| 3 | Financial Records | 4 | 20 | ⬜ |
+| 4 | Prediction Engine *(incl. offline risk model + SHAP)* | 5 | 18 | ⬜ |
+| 5 | Explainability | 2 | 6 | ⬜ |
 | 6 | Officer Dashboard | 4 | 15 | ⬜ |
 | 7 | Offline Support | 2 | 6 | ⬜ |
 | 8 | UI & UX | 3 | 10 | ⬜ |
 | 9 | Testing | 3 | 12 | ⬜ |
 | 10 | Deployment | 2 | 9 | ⬜ |
-| **Total** | **11 phases** | **32** | **122** | |
+| **Total** | **11 phases** | **33** | **134** | |
 
 <details>
 <summary><strong>How the nesting works — Phase 4 (Prediction Engine) expanded as an example</strong></summary>
@@ -163,7 +163,8 @@ flowchart LR
     P["Phase 4<br/>Prediction Engine"] --> T1["Task: Baseline"]
     P --> T2["Task: Scenario Engine"]
     P --> T3["Task: External Adjustments"]
-    P --> T4["Task: Risk Analysis"]
+    P --> T4["Task: Offline Risk Model<br/>& Explainability (Python)"]
+    P --> T5["Task: Risk Analysis"]
 ```
 
 - **Task: Baseline**
@@ -178,10 +179,17 @@ flowchart LR
   - Process: Seasonality adjustment (sector crop/festival calendar)
   - Process: Commodity price adjustment (UPAg `agmarknet`)
   - Process: Weather adjustment (Meteostat)
+- **Task: Offline Risk Model & Explainability** *(Python — not part of the running app)*
+  - Process: Train lightweight model (scikit-learn) on the frozen synthetic dataset
+  - Process: Hold out generator parameters for train/test validation (Stretch rigor)
+  - Process: Compute SHAP feature attributions
+  - Process: Export model weights + baselines as static JSON
+  - Process: Import exported weights into the TypeScript Prediction Engine and apply deterministically
 - **Task: Risk Analysis**
-  - Process: Risk score
+  - Process: Risk score (deterministic arithmetic + exported model weights)
   - Process: Risk level
   - Process: Working capital dip detection
+  - Process: PMFBY claims cross-check for weather-deflator sanity *(optional validation, Important tier)*
 
 A phase is only complete when every process in every task above is checked off in `docs/Task.md` and the phase's definition-of-done in `docs/ROADMAP.md` passes.
 
@@ -209,10 +217,14 @@ flowchart TD
     B --> C["Commodity Prices<br/>UPAg agmarknet"]
     C --> D["Weather Adjustment<br/>Meteostat"]
     D --> E["Scenario Generation<br/>Optimistic / Expected / Pessimistic"]
-    E --> F[Risk Score]
-    F --> G[Why Card]
-    G --> H[AI Recommendation]
+    E --> F["Risk Model<br/>offline-trained weights, applied deterministically"]
+    F --> G[Risk Score]
+    G --> H["SHAP Attribution<br/>per contributing factor"]
+    H --> I[Why Card]
+    I --> J["AI Recommendation<br/>Gemini — language only"]
 ```
+
+The Risk Model node is not live inference — it's a static artifact trained once in Python and read like any other data file. See [🛠 Tech Stack](#-tech-stack) and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) Section 3a.
 
 ---
 
@@ -220,20 +232,29 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    EP[Enterprise Portal] --> APP
-    OD[Officer Dashboard] --> APP
-    APP["Next.js Application"] --> BL[Business Layer]
-    BL --> PE[Prediction Engine]
-    PE --> WX["Weather Service<br/>Meteostat"]
-    PE --> MK["Market Service<br/>UPAg agmarknet"]
-    PE --> AI["AI Service<br/>Gemini — explanation only"]
-    WX --> DB[(PostgreSQL)]
-    MK --> DB
-    AI --> DB
-    PE --> DB
+    subgraph Offline["Offline — Python, runs once, not deployed"]
+        SDG["Faker/Mimesis<br/>synthetic dataset"] --> RM["scikit-learn + SHAP<br/>risk model training"]
+        RM --> ART["Exported weights (JSON)<br/>checked into repo"]
+    end
+
+    subgraph Runtime["Runtime — single Next.js application"]
+        EP[Enterprise Portal] --> APP
+        OD[Officer Dashboard] --> APP
+        APP["Next.js Application"] --> BL[Business Layer]
+        BL --> PE[Prediction Engine]
+        PE --> WX["Weather Service<br/>Meteostat"]
+        PE --> MK["Market Service<br/>UPAg agmarknet"]
+        PE --> AI["AI Service<br/>Gemini — explanation only"]
+        WX --> DB[(PostgreSQL)]
+        MK --> DB
+        AI --> DB
+        PE --> DB
+    end
+
+    ART -.->|"read as static data<br/>(no live call)"| PE
 ```
 
-Full layer/module breakdown: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Full layer/module breakdown: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (Section 3a covers the Offline pipeline specifically).
 
 ---
 
@@ -246,10 +267,13 @@ Full layer/module breakdown: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | Backend | Next.js Route Handlers |
 | ORM | Prisma |
 | Database | PostgreSQL |
-| AI | Gemini (explanation layer only) |
+| **Data Science** *(offline only — see below)* | **Python**, Faker / Mimesis, NumPy / Pandas, scikit-learn, SHAP |
+| Generative AI *(runtime, language only)* | Gemini |
 | Charts | Recharts |
-| Offline | PWA + IndexedDB |
+| Offline *(client, PWA)* | PWA + IndexedDB |
 | Deployment | Vercel |
+
+> **Where's the AI/ML?** The risk model is real, trained machine learning — a small, transparent scikit-learn model explained with SHAP feature attributions — not a rebrand of a REST call. It is trained **offline in Python, once**, and its weights are exported as a static artifact checked into the repo. The deployed app is still a single Next.js/TypeScript runtime: it *reads* those weights and applies them as plain, deterministic arithmetic — it never trains a model or calls a live Python process. Gemini is a separate, unrelated integration used only to turn the resulting numbers into plain-language sentences. Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (Section 3a).
 
 ---
 
@@ -260,6 +284,7 @@ Primary (wired into the live pipeline):
 - **UPAg `agmarknet`** — mandi commodity prices, Step 3 (Market Reality)
 - **Meteostat** — historical weather by station/lat-long, Step 4 (Weather Deflator)
 - **Faker/Mimesis** — synthetic transaction generator (fixed seed, sector-specific), the foundation everything else calibrates against
+- **scikit-learn + SHAP** — the risk model, trained offline once on the synthetic dataset, exported as static weights; the project's actual AI/ML development
 - **Gemini** — explanation and recommendation text only, never the calculation
 
 Secondary / calibration / cut for the hackathon — see [`docs/Sources Reference.md`](<docs/Sources Reference.md>) for the full breakdown:
@@ -330,6 +355,12 @@ npm install
 cp .env.example .env
 
 npm run dev
+```
+
+**Data science pipeline (optional, offline only)** — only needed if you're regenerating the synthetic dataset or retraining the risk model, not for running the app itself:
+
+```bash
+pip install faker mimesis numpy pandas scikit-learn shap meteostat
 ```
 
 ---
